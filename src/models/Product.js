@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 mongoose.set('useFindAndModify', false);
-const BranchModel = mongoose.model('Product');
+
+const ProductModel = mongoose.model('Product');
+
 const selectString = '-_id -__v';
 
 class Product {
@@ -12,14 +14,19 @@ class Product {
 
     async getAllProducts({ page = 1, limit = 10 }) {
         try {
-            const products = await BranchModel.paginate({}, { page, limit, select: selectString });
+            const products = await ProductModel.paginate({}, { page, limit, select: selectString });
+            
             this.result = products;
-            // this.result.push(...products);
+            this.statusCode = 200;
+
         } catch (error) {
-            console.log('Catch_error: ', error);
+            console.error('Catch_error: ', error);
+
             this.result = error;
             this.statusCode = 500;
+
         } finally {
+
             return {
                 result: this.result,
                 statusCode: this.statusCode
@@ -31,11 +38,16 @@ class Product {
         try {
             // validateProduct(); Fazer a lógica depois.
             formatProduct(data);
-            let productCreated = await BranchModel.create(data);
-            productCreated = await BranchModel.find({ id: productCreated.id }).select(selectString);
+
+            let productCreated = await ProductModel.create(data);
+            productCreated = await ProductModel.find({ id: productCreated.id }).select(selectString);
+
             this.result = productCreated;
+            this.statusCode = 200;
+            
         } catch (error) {
-            console.log('Catch_error: ', error);
+            console.error('Catch_error: ', error);
+            
             this.result = error;
             this.statusCode = 500;
         } finally {
