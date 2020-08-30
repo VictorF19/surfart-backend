@@ -15,5 +15,10 @@ module.exports = {
         const product = new Product();
         const result = await product.update(req.params.id, req.body);
         return res.status(result.statusCode).send(result.result);
+    },
+    async delete(req, res) {
+        const product = new Product();
+        const result = await product.delete(req.params.id);
+        return res.status(result.statusCode).send(result.result);
     }
 };

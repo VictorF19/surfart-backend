@@ -102,6 +102,25 @@ class Product {
             return this.response();
         }
     };
+
+    async delete(id) {
+        try {
+            const deletedProduct = await ProductModel.findOneAndDelete({ id });
+
+            this.result = deletedProduct;
+            this.statusCode = 200;
+
+        } catch (error) {
+
+            console.error('Catch_error: ', error);
+            this.result = error;
+            this.statusCode = 500;
+
+        } finally {
+
+            return this.response();
+        }
+    };
 }
 
 function formatProduct(data, isUpdated = false) {
