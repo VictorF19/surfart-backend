@@ -4,16 +4,18 @@ const mongooseAutoIncrement = require('mongoose-auto-increment');
 
 mongooseAutoIncrement.initialize(mongoose.connection);
 
+const hour = new Date().getTime();
+const date = new Date(hour);
+
 const SkuSchema = new mongoose.Schema({
-    id: {
+    product_id: {
         type: Number,
         required: true
     },
-    name: {
-        type: String,
-        required: true
+    id: {
+        type: Number
     },
-    description: {
+    title: {
         type: String,
         required: true
     },
@@ -21,31 +23,74 @@ const SkuSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    stock: {
+    old_price: {
         type: Number,
         required: true
-    }
+    },
+    promotion: {
+        type: Boolean,
+        default: false
+    },
+    position: {
+        type: Number,
+        required: true
+    },
+    ean: {
+        type: Number,
+        required: false
+    },
+    height: {
+        type: Number,
+        required: true
+    },
+    weight: {
+        type: Number,
+        required: true
+    },
+    quantity: {
+        type: Number,
+        required: true
+    },
+    images: []
 });
 
 const ProductSchema = new mongoose.Schema({
     id: {
         type: Number,
-        required: true
     },
-    name: {
+    title: {
         type: String,
         required: true
     },
-    skus: {
-        type: [SkuSchema],
+    category: {
+        type: String,
         required: true
-    }
+    },
+    created_at: {
+        type: Date,
+        default: date
+    },
+    updated_at: {
+        type: Date,
+        default: date
+    },
+    tags: [],
+    image: {
+        type: String,
+        required: true
+    },
+    rate_stars: {
+        type: Number,
+        required: false,
+        default: 0
+    },
+    variants: [SkuSchema]
 });
 
-
-ProductSchema.plugin(mongoosePaginate);
-
 ProductSchema.plugin(mongooseAutoIncrement.plugin, { model: 'Product', field: 'id', startAt: 1, incrementBy: 1 });
-SkuSchema.plugin(mongooseAutoIncrement.plugin, { model: 'Sku', field: 'id', startAt: 1, incrementBy: 1 });
+ProductSchema.plugin(mongoosePaginate);
+// SkuSchema.plugin(mongooseAutoIncrement.plugin, { model: 'Sku', field: 'id', startAt: 1, incrementBy: 1 });
+// SkuSchema.plugin(mongoosePaginate);
 
 mongoose.model('Product', ProductSchema);
+// mongoose.model('Sku', SkuSchema);

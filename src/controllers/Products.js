@@ -1,12 +1,16 @@
+let Product = require('../models/Product');
 const mongoose = require('mongoose');
-const Product = mongoose.model('Product');
 const selectString = '-_id -__v';
 
+Product = new Product();
+
 module.exports = {
-    
     async getAllProducts(req, res) {
-        const { page = 1 } = req.query;
-        
-        return res.json(animals);
+        await Product.getAllProducts(req.query);
+        return res.status(Product.statusCode).send(Product.result);
+    },
+    async createProduct(req, res) {
+        await Product.createProduct(req.body);
+        return res.status(Product.statusCode).send(Product.result);
     }
 };
