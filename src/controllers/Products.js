@@ -1,16 +1,19 @@
 const Product = require('../models/Product');
 
 module.exports = {
-    async getAllProducts(req, res) {
+    async getAll(req, res) {
         const product = new Product();
-
-        const result = await product.getAllProducts(req.query);
+        const result = await product.getAll(req.query);
         return res.status(result.statusCode).send(result.result);
     },
-    async createProduct(req, res) {
+    async create(req, res) {
         const product = new Product();
-
-        const result = await product.createProduct(req.body);
+        const result = await product.create(req.body);
+        return res.status(result.statusCode).send(result.result);
+    },
+    async update(req, res) {
+        const product = new Product();
+        const result = await product.update(req.params.id, req.body);
         return res.status(result.statusCode).send(result.result);
     }
 };
