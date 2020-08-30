@@ -74,7 +74,9 @@ const ProductSchema = new mongoose.Schema({
         type: Date,
         default: date
     },
-    tags: [],
+    tags: {
+        type: [String]
+    },
     image: {
         type: String,
         required: true
@@ -89,8 +91,8 @@ const ProductSchema = new mongoose.Schema({
 
 ProductSchema.plugin(mongooseAutoIncrement.plugin, { model: 'Product', field: 'id', startAt: 1, incrementBy: 1 });
 ProductSchema.plugin(mongoosePaginate);
-// SkuSchema.plugin(mongooseAutoIncrement.plugin, { model: 'Sku', field: 'id', startAt: 1, incrementBy: 1 });
-// SkuSchema.plugin(mongoosePaginate);
+SkuSchema.plugin(mongooseAutoIncrement.plugin, { model: 'Sku', field: 'id', startAt: 1, incrementBy: 1 });
+SkuSchema.plugin(mongoosePaginate);
 
 mongoose.model('Product', ProductSchema);
 // mongoose.model('Sku', SkuSchema);
