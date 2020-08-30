@@ -47,7 +47,7 @@ class Product {
     };
 }
 
-function formatProduct(data){
+function formatProduct(data) {
     data.id = undefined;
     data.rate_stars = undefined;
     data.created_at = undefined;
