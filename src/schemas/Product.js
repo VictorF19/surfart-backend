@@ -4,9 +4,6 @@ const mongooseAutoIncrement = require('mongoose-auto-increment');
 
 mongooseAutoIncrement.initialize(mongoose.connection);
 
-const hour = new Date().getTime();
-const date = new Date(hour);
-
 const SkuSchema = new mongoose.Schema({
     product_id: {
         type: Number,
@@ -68,11 +65,11 @@ const ProductSchema = new mongoose.Schema({
     },
     created_at: {
         type: Date,
-        default: date
+        default: new Date()
     },
     updated_at: {
         type: Date,
-        default: date
+        default: new Date()
     },
     tags: {
         type: [String]
@@ -91,8 +88,8 @@ const ProductSchema = new mongoose.Schema({
 
 ProductSchema.plugin(mongooseAutoIncrement.plugin, { model: 'Product', field: 'id', startAt: 1, incrementBy: 1 });
 ProductSchema.plugin(mongoosePaginate);
-SkuSchema.plugin(mongooseAutoIncrement.plugin, { model: 'Sku', field: 'id', startAt: 1, incrementBy: 1 });
-SkuSchema.plugin(mongoosePaginate);
+// SkuSchema.plugin(mongooseAutoIncrement.plugin, { model: 'Sku', field: 'id', startAt: 1, incrementBy: 1 });
+// SkuSchema.plugin(mongoosePaginate);
 
 mongoose.model('Product', ProductSchema);
 // mongoose.model('Sku', SkuSchema);

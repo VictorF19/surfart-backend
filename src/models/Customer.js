@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 mongoose.set('useFindAndModify', false);
 
-const ProductModel = mongoose.model('Product');
+const CustomerModel = mongoose.model('Customer');
 
 const selectString = '-_id -__v';
 
@@ -27,7 +27,7 @@ class Product {
     validate(data) {
         data.isInvalid = false;
         const missing = new Array();
-        ['title', 'category', 'image'].forEach(item => {
+        ['first_name', 'last_name', 'email'].forEach(item => {
             if (!data[item]) missing.push(item);
         });
         if (missing.length) {
@@ -41,8 +41,6 @@ class Product {
     }
 
     formatRequest(data, isUpdated = false) {
-        data.id = undefined;
-        data.rate_stars = undefined;
         data.created_at = undefined;
 
         if (isUpdated) {
@@ -57,8 +55,8 @@ class Product {
     async getAll({ page = 1, limit = 10 }) {
         try {
 
-            const products = await ProductModel.paginate({}, { page, limit, select: selectString });
-            this.setResponse(products);
+            const customers = await CustomerModel.paginate({}, { page, limit, select: selectString });
+            this.setResponse(customers);
 
         } catch (error) {
             console.error('Catch_error: ', error);
@@ -70,16 +68,17 @@ class Product {
 
     async create(data) {
         try {
+            const validCustomer = this.validate(data);
 
-            const validProduct = this.validate(data);
-            if (validProduct.isInvalid) {
+            if (validCustomer.isInvalid) {
                 return this.response();
             }
 
             formatRequest(data);
-            let productCreated = await BranchModel.create(data);
-            productCreated = await BranchModel.find({ id: productCreated.id }).select(selectString);
-            this.setResponse(productCreated);
+            let customerCreated = await CustomerModel.create(data);
+            customerCreated = await CustomerModel.findById(customerCreated._id).select(selectString);
+
+            this.setResponse(customerCreated);
 
         } catch (error) {
             console.error('Catch_error: ', error);
@@ -93,7 +92,7 @@ class Product {
         try {
 
             formatRequest(data, true);
-            const updatedProduct = await ProductModel.findOneAndUpdate({ id }, data, { new: true });
+            const updatedProduct = await CustomerModel.findOneAndUpdate({ id }, data, { new: true });
             this.setResponse(updatedProduct);
 
         } catch (error) {
@@ -107,7 +106,7 @@ class Product {
     async delete(id) {
         try {
 
-            const deletedProduct = await ProductModel.findOneAndDelete({ id });
+            const deletedProduct = await CustomerModel.findOneAndDelete({ id });
             this.setResponse(deletedProduct);
 
         } catch (error) {
