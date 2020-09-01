@@ -1,29 +1,32 @@
 const mongoose = require('mongoose');
 const mongoosePaginate = require('mongoose-paginate');
+mongoose.Types.ObjectId();
 
 const CustomerSchema = new mongoose.Schema({
     first_name: {
         type: String,
-        required: true
+        required: true,
     },
     last_name: {
         type: String,
-        required: true
+        required: true,
     },
     email: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
     },
     created_at: {
         type: Date,
-        default: new Date()
+        default: new Date(),
     },
     updated_at: {
         type: Date,
-        default: new Date()
+        default: new Date(),
     },
-    address: [],
+    address: {
+        type: Array,
+    },
     admin: {
         type: Boolean,
         default: false

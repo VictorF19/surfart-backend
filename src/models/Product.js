@@ -24,18 +24,17 @@ class Product {
         };
     }
 
-    validate(data) {
-        data.isInvalid = false;
+    validate(data, validateArray) {
         const missing = new Array();
-        ['title', 'category', 'image'].forEach(item => {
+        validateArray.forEach(item => {
             if (!data[item]) missing.push(item);
         });
         if (missing.length) {
-            this.result = {
+            const result = {
                 message: `The fields are missing: ${missing.join().replace(/\,/g, ', ')}`
             };
             data.isInvalid = true;
-            this.setResponse({}, 400);
+            this.setResponse(result, 400);
         }
         return data;
     }
@@ -68,17 +67,30 @@ class Product {
         }
     };
 
+    async getById(id) {
+        try {
+
+            const product = await ProductModel.find({ id });
+            this.setResponse(product);
+
+        } catch (error) {
+            console.error('Catch_error: ', error);
+            this.setResponse(error, 500);
+        } finally {
+            return this.response();
+        }
+    };
+
     async create(data) {
         try {
 
-            const validProduct = this.validate(data);
+            const validProduct = this.validate(data, ['title', 'category', 'image']);
             if (validProduct.isInvalid) {
-                return this.response();
+                return;
             }
 
             formatRequest(data);
-            let productCreated = await BranchModel.create(data);
-            productCreated = await BranchModel.find({ id: productCreated.id }).select(selectString);
+            const productCreated = await ProductModel.create(data);
             this.setResponse(productCreated);
 
         } catch (error) {
@@ -94,6 +106,7 @@ class Product {
 
             formatRequest(data, true);
             const updatedProduct = await ProductModel.findOneAndUpdate({ id }, data, { new: true });
+            updatedProduct = await ProductModel.findById(id);
             this.setResponse(updatedProduct);
 
         } catch (error) {

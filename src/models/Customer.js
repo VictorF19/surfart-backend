@@ -1,3 +1,4 @@
+const addressTransformation = require('../data-transformation/Address');
 const mongoose = require('mongoose');
 mongoose.set('useFindAndModify', false);
 
@@ -24,18 +25,17 @@ class Product {
         };
     }
 
-    validate(data) {
-        data.isInvalid = false;
+    validate(data, validateArray) {
         const missing = new Array();
-        ['first_name', 'last_name', 'email'].forEach(item => {
+        validateArray.forEach(item => {
             if (!data[item]) missing.push(item);
         });
         if (missing.length) {
-            this.result = {
+            const result = {
                 message: `The fields are missing: ${missing.join().replace(/\,/g, ', ')}`
             };
             data.isInvalid = true;
-            this.setResponse({}, 400);
+            this.setResponse(result, 400);
         }
         return data;
     }
@@ -66,18 +66,31 @@ class Product {
         }
     };
 
+    async getById(id) {
+        try {
+
+            const customer = await CustomerModel.findById(id);
+            this.setResponse(customer);
+
+        } catch (error) {
+            console.error('Catch_error: ', error);
+            this.setResponse(error, 500);
+        } finally {
+            return this.response();
+        }
+    };
+
     async create(data) {
         try {
-            const validCustomer = this.validate(data);
+
+            const validCustomer = this.validate(data, ['first_name', 'last_name', 'email']);
 
             if (validCustomer.isInvalid) {
                 return this.response();
             }
 
             formatRequest(data);
-            let customerCreated = await CustomerModel.create(data);
-            customerCreated = await CustomerModel.findById(customerCreated._id).select(selectString);
-
+            const customerCreated = await CustomerModel.create(data);
             this.setResponse(customerCreated);
 
         } catch (error) {
@@ -92,8 +105,9 @@ class Product {
         try {
 
             formatRequest(data, true);
-            const updatedProduct = await CustomerModel.findOneAndUpdate({ id }, data, { new: true });
-            this.setResponse(updatedProduct);
+            let updatedCustomer = await CustomerModel.findOneAndUpdate({ id }, data, { new: true });
+            updatedCustomer = await CustomerModel.findById(id);
+            this.setResponse(updatedCustomer);
 
         } catch (error) {
             console.error('Catch_error: ', error);
@@ -116,6 +130,36 @@ class Product {
             return this.response();
         }
     };
+
+    async createAddress(id, data) {
+        try {
+
+            let customer = await this.getById(id);
+
+            if (customer.statusCode != 200) {
+                return this.setResponse({ message: 'Customer not found' }, 404);
+            }
+
+            let addressTransformed = addressTransformation(data);
+            addressTransformed = this.validate(addressTransformed, ['cep', 'address', 'number']);
+
+            if (addressTransformed.isInvalid) {
+                return this.response();
+            }
+
+            customer.result.address.push(addressTransformed);
+
+            const customerUpdated = await CustomerModel.findByIdAndUpdate(id, customer.result, { new: true });
+
+            this.setResponse(customerUpdated);
+
+        } catch (error) {
+            // console.error('Catch_error: ', error);
+            this.setResponse(error, 500);
+        } finally {
+            return this.response();
+        }
+    }
 }
 
 function formatRequest(data, isUpdated = false) {
