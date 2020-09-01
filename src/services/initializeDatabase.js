@@ -10,7 +10,13 @@ module.exports = {
                 useUnifiedTopology: true
             });
             mongoose.connection.on('connected', () => {
-                console.log("Banco conectado com sucesso!")
+                console.log('\n');
+                console.log('=============================');
+                console.log("Banco conectado com sucesso!");
+                console.log('=============================');
+                console.log('Rodando na porta: ', process.env.PORT || 3000);
+                console.log('=============================');
+                console.log('\n');
             })
         } catch (err) {
             console.log(err);

@@ -119,8 +119,8 @@ class Product {
 }
 
 function formatRequest(data, isUpdated = false) {
-    data.id = undefined;
-    data.rate_stars = undefined;
+    data.address = undefined;
+    data.admin = false;
     data.created_at = undefined;
 
     if (isUpdated) {

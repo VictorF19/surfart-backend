@@ -23,9 +23,7 @@ const CustomerSchema = new mongoose.Schema({
         type: Date,
         default: new Date()
     },
-    address: {
-        type: Object
-    },
+    address: [],
     admin: {
         type: Boolean,
         default: false
