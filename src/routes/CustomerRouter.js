@@ -1,3 +1,6 @@
+require('../schemas/Product');
+require('../schemas/Customer');
+
 const CustomerController = require('../controllers/Customers');
 
 const express = require('express');

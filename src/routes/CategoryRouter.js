@@ -1,3 +1,5 @@
+require('../schemas/Category');
+
 const CategoryController = require('../controllers/Categories');
 
 const express = require('express');
