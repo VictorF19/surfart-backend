@@ -1,8 +1,10 @@
 const mongoose = require('mongoose');
 const mongoosePaginate = require('mongoose-paginate');
-mongoose.Types.ObjectId();
 
 const CustomerSchema = new mongoose.Schema({
+    id: {
+        type: Number
+    },
     first_name: {
         type: String,
         required: true,

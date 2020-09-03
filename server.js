@@ -10,6 +10,8 @@ app.use(cors());
 
 dataBase.initializeDatabase();
 
-app.use('/api', require('./src/routes'));
+app.use('/api/products', require('./src/routes/ProductRouter'));
+app.use('/api/customers', require('./src/routes/CustomerRouter'));
+app.use('/api/categories', require('./src/routes/CategoryRouter'));
 
 app.listen(process.env.PORT || 3000);

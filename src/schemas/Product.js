@@ -60,7 +60,7 @@ const ProductSchema = new mongoose.Schema({
         required: true
     },
     category: {
-        type: String,
+        type: [Number], //tentar substituir por [CategorySchema]
         required: true
     },
     created_at: {
