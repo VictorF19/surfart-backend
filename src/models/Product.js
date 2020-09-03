@@ -57,9 +57,6 @@ class Product {
         try {
 
             const products = await ProductModel.paginate({}, { page, limit, select: selectString });
-            for (const product of products.docs) {
-                product.price = 100.00;
-            }
             this.setResponse(products);
 
         } catch (error) {

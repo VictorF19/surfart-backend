@@ -83,6 +83,10 @@ const ProductSchema = new mongoose.Schema({
         required: false,
         default: 0
     },
+    price: {
+        type: Number,
+        default: 100.00
+    },
     variants: [SkuSchema]
 });
 
