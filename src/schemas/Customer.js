@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const mongoosePaginate = require('mongoose-paginate');
+const mongooseAutoIncrement = require('mongoose-auto-increment');
 
 const CustomerSchema = new mongoose.Schema({
     id: {
@@ -28,13 +29,19 @@ const CustomerSchema = new mongoose.Schema({
     },
     address: {
         type: Array,
+        default: []
     },
     admin: {
         type: Boolean,
         default: false
+    },
+    historic: {
+        type: Array,
+        default: []
     }
 });
 
+CustomerSchema.plugin(mongooseAutoIncrement.plugin, { model: 'Customer', field: 'id', startAt: 1, incrementBy: 1 });
 CustomerSchema.plugin(mongoosePaginate);
 
 mongoose.model('Customer', CustomerSchema);

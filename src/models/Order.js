@@ -1,11 +1,14 @@
+const OrderItensTransformation = require('../data-transformation/Order-items');
 const mongoose = require('mongoose');
 mongoose.set('useFindAndModify', false);
 
-const CategoryModel = mongoose.model('Category');
+const OrderModel = mongoose.model('Order');
+const CustomerModel = mongoose.model('Customer');
+const ProductModel = mongoose.model('Product');
 
 const selectString = '-_id -__v';
 
-class Category {
+class Order {
 
     constructor() {
         this.result = [];
@@ -40,8 +43,10 @@ class Category {
     }
 
     formatRequest(data, isUpdated = false) {
+
         data.id = undefined;
-        data.rate_stars = undefined;
+        data.price = undefined;
+        data.updated_at = undefined;
         data.created_at = undefined;
 
         if (isUpdated) {
@@ -56,7 +61,7 @@ class Category {
     async getAll({ page = 1, limit = 10 }) {
         try {
 
-            const categories = await CategoryModel.paginate({}, { page, limit, select: selectString });
+            const categories = await OrderModel.paginate({}, { page, limit, select: selectString });
             this.setResponse(categories);
 
         } catch (error) {
@@ -70,7 +75,7 @@ class Category {
     async getById(id) {
         try {
 
-            const categories = await CategoryModel.find({ id });
+            const categories = await OrderModel.find({ id });
             this.setResponse(categories);
 
         } catch (error) {
@@ -84,10 +89,23 @@ class Category {
     async create(data) {
         try {
 
-            // Validate
+            const validOrder = this.validate(data, ['customer_id', 'items', 'value', 'toDelivery', 'billing_address']);
+            if (validOrder.isInvalid) {
+                return;
+            }
 
-            formatRequest(data);
-            const categoryCreated = await CategoryModel.create(data);
+            const customerValidate = await validateCustomer(data);
+            if (customerValidate.isInvalid) {
+                return this.response();
+            }
+
+            const itemsValidate = await validateItems(data);
+            if (itemsValidate.isInvalid) {
+                return this.response();
+            }
+
+            this.formatRequest(data);
+            const categoryCreated = await OrderModel.create(data);
             this.setResponse(categoryCreated);
 
         } catch (error) {
@@ -101,9 +119,9 @@ class Category {
     async update(id, data) {
         try {
 
-            formatRequest(data);
-            const updatedCategory = await CategoryModel.findOneAndUpdate({ id }, data, { new: true });
-            updatedCategory = await CategoryModel.findById(id);
+            this.formatRequest(data);
+            const updatedCategory = await OrderModel.findOneAndUpdate({ id }, data, { new: true });
+            updatedCategory = await OrderModel.findById(id);
             this.setResponse(updatedCategory);
 
         } catch (error) {
@@ -117,7 +135,7 @@ class Category {
     async delete(id) {
         try {
 
-            const deletedCategory = await CategoryModel.findOneAndDelete({ id });
+            const deletedCategory = await OrderModel.findOneAndDelete({ id });
             this.setResponse(deletedCategory);
 
         } catch (error) {
@@ -129,12 +147,38 @@ class Category {
     };
 }
 
-function formatRequest(data) {
-    data.id = undefined;
+async function validateCustomer(data) {
 
-    for (const prop in data) {
-        if (!data[prop]) delete data[prop];
+    const customer = await CustomerModel.findById(data.customer_id);
+
+    if (!customer) {
+        this.setResponse({ message: `Customer ${data.customer_id} not found` }, 400);
+        return { isInvalid: true };
     }
+
+    customer.historic = undefined;
+    customer.__v = undefined;
+    data.customer_id = undefined;
+    data.customer = customer;
+
+    return { isInvalid: false };
+
 }
 
-module.exports = Category;
+async function validateItems(data) {
+
+    const products = await ProductModel.find().where('id').in(data.items).exec();
+
+    if (!products) {
+        this.setResponse({ message: 'These products are not found' }, 400);
+        return { isInvalid: true };
+    }
+
+    data.value = products.reduce((a, b) => a.price + b.price);
+    data.items = products;
+
+    return { isInvalid: false };
+
+}
+
+module.exports = Order;
